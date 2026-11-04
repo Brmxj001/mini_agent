@@ -1,11 +1,28 @@
 """DeepSeek 原生 API 客户端（httpx 直连，无任何 Agent 框架）。"""
 
 import os
+from pathlib import Path
 
 import httpx
 
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-flash"
+
+
+def _load_demo_env() -> None:
+    """加载仓库内的 demo.env；已存在的环境变量优先，便于用户覆盖演示 Key。"""
+    path = Path(__file__).with_name("demo.env")
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        os.environ.setdefault(name.strip(), value.strip())
+
+
+_load_demo_env()
 
 
 class DeepSeekError(Exception):
